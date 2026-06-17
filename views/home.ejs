@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,8 +6,85 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Welcome, <%= username || 'guest' %>!</h1>
+    <h1>Welcome, </h1>
     <p><a href="/logout">Logout</a></p>
     
 </body>
 </html>
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrbitAI · chat</title>
+    <link rel="stylesheet" href="/css/home.css">
+</head>
+
+<body>
+
+    <!-- stars -->
+    <div class="stars-container" id="starsContainer">
+        <!-- comets -->
+        <div class="comet-container" id="cometContainer">
+
+            <!-- main app -->
+            <div class="app-container">
+                <!-- SIDEBAR -->
+                <aside class="sidebar">
+                    <div class="sidebar-brand"><span>🪐</span> OrbitAI</div>
+                    <div class="new-chat-btn">✦ New chat</div>
+
+                    <div class="sidebar-section">Chats</div>
+                    <ul class="chat-list">
+                        <li></li>
+                    </ul>
+
+                    <div class="pinned-label">📌 Pinned</div>
+                    <ul class="chat-list" style="margin-bottom:0.5rem;">
+                       <li></li>
+                    </ul>
+
+                    <div class="project-item">
+                        <span>📁<%= username || 'guest' %>! </span>
+                        <span class="badge">Free</span>
+                    </div>
+                    
+                    <!-- tiny json preview -->
+                   
+
+                    <div class="sidebar-footer">
+                        <span>OrbitAI v0.1</span>
+                        <span>✨ cosmic</span>
+                    </div>
+                </aside>
+
+                <!-- MAIN CHAT -->
+                <main class="chat-main">
+                    <div class="chat-header">
+                        <h2></h2>
+                        <div class="meta"><span>📅 today</span> <span></span></div>
+                    </div>
+
+                    <div class="messages-area" id="messageArea">
+                        
+                    </div>
+
+                    <div class="input-row">
+                        <input type="text" id="chatInput" placeholder="Ask OrbitAI ..." autofocus>
+                        <button id="sendBtn">🚀 Send</button>
+                    </div>
+                    <div class="status-note">⚡ OrbitAI can make mistakes. Check important info.</div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/home.js"></script>
+</body>
+
+</html>
+
+ 

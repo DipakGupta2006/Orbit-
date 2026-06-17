@@ -2,15 +2,47 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const pool = require("./db");
+const { createClient } = require('@sanity/client');
 const app = express();
 const path = require('path');
 const crypto = require('crypto');
 const port = process.env.PORT || 3000;
 
 app.use(express.static("public"));
+app.use('/css', express.static(path.join(__dirname, 'styles')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set("view engine", "ejs");
+
+// Sanity (GROQ) client setup — set SANITY_PROJECT_ID, SANITY_DATASET, SANITY_TOKEN in env
+let sanity = null;
+if (process.env.SANITY_PROJECT_ID) {
+    sanity = createClient({
+        projectId: process.env.SANITY_PROJECT_ID,
+        dataset: process.env.SANITY_DATASET || 'production',
+        apiVersion: process.env.SANITY_API_VERSION || '2024-06-01',
+        useCdn: false,
+        token: process.env.SANITY_TOKEN || undefined
+    });
+} else {
+    console.warn('Sanity not configured: set SANITY_PROJECT_ID to enable GROQ API.');
+}
+
+// Simple GROQ passthrough endpoint: GET /api/groq?query=<encoded_groq>&params=<json-encoded-params>
+app.get('/api/groq', async (req, res) => {
+    if (!sanity) return res.status(500).json({ error: 'Sanity not configured on server' });
+    const query = req.query.query;
+    const params = req.query.params ? JSON.parse(req.query.params) : {};
+    if (!query) return res.status(400).json({ error: 'query parameter is required' });
+    try {
+        const data = await sanity.fetch(query, params);
+        return res.json(data);
+    } catch (err) {
+        console.error('GROQ fetch error:', err);
+        return res.status(500).json({ error: 'GROQ fetch failed', details: err.message });
+    }
+});
 
 app.use(session({
     secret: process.env.SESSION_SECRET || "keyboard cat",
@@ -119,3 +151,6 @@ function requireLogin(req, res, next) {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+
+//  git push -u origin main  
