@@ -1,19 +1,311 @@
-(function () {
-    // ---------- STARS ----------
-    const starsContainer = document.getElementById('starsContainer');
-    for (let i = 0; i < 90; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        const size = 1.5 + Math.random() * 3.8;
-        star.style.width = size + 'px';
-        star.style.height = size + 'px';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.setProperty('--duration', (3 + Math.random() * 5) + 's');
-        star.style.animationDelay = (Math.random() * 4) + 's';
-        star.style.opacity = 0.3 + Math.random() * 0.7;
-        starsContainer.appendChild(star);
+
+
+(
+    
+    function () {
+        
+        
+
+
+    const chatInput = document.getElementById("chatInput");
+
+    const sendBtn = document.getElementById("sendBtn");
+
+    const messageArea = document.getElementById("messageArea");
+
+
+
+    let chatHistory =
+        JSON.parse(localStorage.getItem("orbit_chat")) || [];
+
+
+
+
+
+    // Load old messages when page refresh
+
+    function loadMessages() {
+
+
+        messageArea.innerHTML = "";
+
+
+        chatHistory.forEach(msg => {
+
+
+            createMessage(
+                msg.text,
+                msg.role
+            );
+
+
+        });
+
+
     }
+
+
+
+
+
+    loadMessages();
+
+
+
+
+
+
+    // Create message UI
+
+    function createMessage(text, role) {
+
+
+        const div =
+            document.createElement("div");
+
+
+
+        div.className =
+            "message-item " + role;
+
+
+
+        div.textContent = text;
+
+
+
+        messageArea.appendChild(div);
+
+
+
+    }
+
+
+
+
+
+
+
+    // Save message in local storage
+
+    function saveMessage(text, role) {
+
+
+        chatHistory.push({
+
+            text: text,
+
+            role: role,
+
+            time: new Date().toISOString()
+
+        });
+
+
+
+        localStorage.setItem(
+
+            "orbit_chat",
+
+            JSON.stringify(chatHistory)
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+    function appendMessage(text, role) {
+
+
+
+        createMessage(
+            text,
+            role
+        );
+
+
+        saveMessage(
+            text,
+            role
+        );
+
+
+
+        setTimeout(() => {
+
+
+            messageArea.scrollTop =
+                messageArea.scrollHeight;
+
+
+        }, 50);
+
+
+
+    }
+
+
+
+
+
+
+
+
+    sendBtn.addEventListener(
+        "click",
+        sendMessage
+    );
+
+
+
+
+    chatInput.addEventListener(
+        "keypress",
+        (e) => {
+
+
+            if (e.key === "Enter") {
+
+                sendMessage();
+
+            }
+
+
+        });
+
+
+
+
+
+
+
+    async function sendMessage() {
+
+
+
+        const message =
+            chatInput.value.trim();
+
+
+
+        if (!message)
+            return;
+
+
+
+        // user message
+
+        appendMessage(
+            message,
+            "user"
+        );
+
+
+
+        chatInput.value = "";
+
+
+
+        sendBtn.disabled = true;
+
+        sendBtn.innerText = "Thinking...";
+
+
+
+
+        try {
+
+
+            const response =
+                await fetch("/api/chat", {
+
+
+                    method: "POST",
+
+
+                    headers: {
+
+
+                        "Content-Type":
+                            "application/json"
+
+
+                    },
+
+
+                    body: JSON.stringify({
+
+                        message: message
+
+                    })
+
+
+                });
+
+
+
+
+
+            const data =
+                await response.json();
+
+
+
+
+
+            appendMessage(
+
+                data.reply ||
+                "No response",
+
+                "assistant"
+
+            );
+
+
+
+
+        }
+        catch (error) {
+
+
+
+            appendMessage(
+
+                "Network error",
+
+                "assistant"
+
+            );
+
+
+        }
+        finally {
+
+
+            sendBtn.disabled = false;
+
+
+            sendBtn.innerText = "🚀 Send";
+
+
+        }
+
+
+
+
+    }
+
+
+
+
+
 
 
 })();
